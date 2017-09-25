@@ -1,15 +1,26 @@
 #importando as bibliotecas
 
-library(readr)
-library(dplyr)
-library(Amelia)
-library(pscl)
+
+installLibs <- function(x){
+  for( i in x ){
+    #  require returns TRUE invisibly if it was able to load package
+    if( ! require( i , character.only = TRUE ) ){
+      #  If package was not able to be loaded then re-install
+      install.packages( i , dependencies = TRUE )
+      #  Load package after installing
+      require( i , character.only = TRUE )
+    }
+  }
+}
+
+
+installLibs(c('readr','dplyr','Amelia','pscl'))
+
 
 #importando as bases de dados train e test de NYCTaxi
 
-traintaxinyc <-read_csv("~/train.csv")
-
-testtaxinyc <-read_csv("~/test.csv")
+traintaxinyc <-read_csv("datasets/train.csv")
+testtaxinyc <-read_csv("datasets/test.csv")
 
 #verificando as estruturas
 
