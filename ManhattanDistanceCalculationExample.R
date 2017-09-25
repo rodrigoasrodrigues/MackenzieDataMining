@@ -1,71 +1,39 @@
-#importando as bibliotecas
+#How to calculate Manhattan Distance in R?
+print("How to calculate Manhattan Distance in R?")
+
+fa <- c(5,2,1,4)
+fb <- c(5,5,4,2)
+
+fm <- matrix(c(fa,fb), byrow=T, nrow=2)
+
+col_names_vectors <- c("U1", "U2", "U3", "U4")
+row_names_vectors <- c("FilmA","FilmB")
+
+colnames(fm) <- col_names_vectors
+rownames(fm) <- row_names_vectors
+
+fm
 
 
-installLibs <- function(x){
-  for( i in x ){
-    #  require returns TRUE invisibly if it was able to load package
-    if( ! require( i , character.only = TRUE ) ){
-      #  If package was not able to be loaded then re-install
-      install.packages( i , dependencies = TRUE )
-      #  Load package after installing
-      require( i , character.only = TRUE )
-    }
-  }
-}
+#Manhatan Distance based on vectors
+#dv1 <- abs(fa[1]-fa[4]) + abs(fb[1]-fb[4])
+#dv1
 
+#Manhattan Distance based on matrix
 
-installLibs(c('readr','dplyr','Amelia','pscl'))
+#Distance from user1 (U1) to the new user
+d1 <- abs(fm[1,1]-fm[1,4]) + abs(fm[2,1]-fm[2,4])
+d1
 
+#Distance from user2 (U2) to the new user 
+d2 <- abs(fm[1,2]-fm[1,4]) + abs(fm[2,2]-fm[2,4])
+d2
 
-#importando as bases de dados train e test de NYCTaxi
+#Distance from user3 (U3) to the new user 
+d3 <- abs(fm[1,3]-fm[1,4]) + abs(fm[2,3]-fm[2,4])
+d3
 
-traintaxinyc <-read_csv("datasets/train.csv")
-testtaxinyc <-read_csv("datasets/test.csv")
-
-#verificando as estruturas
-
-str(traintaxinyc)
-
-str(testtaxinyc)
-
-#sumários
-
-summary(traintaxinyc)
-
-summary(testtaxinyc)
-
-#visualizando as colunas
-
-View(traintaxinyc)
-
-View(testtaxinyc)
-
-#Usando Kmeans para verificar se houve a gravação dos dados da viagem ou não
-
-set.seed(20)
-
-traintaxinyc <-na.omit(traintaxinyc) #omitindo os dados NA
-
-NYCTripCluster <- kmeans(traintaxinyc[, c(2,5)], 2, nstart = 20)
-
-NYCTripCluster 
-
-base::table(NYCTripCluster$cluster,traintaxinyc$store_and_fwd_flag)
-
-#Preparando os dados para montar os modelos e calcular a distancia manhattan
-
-#unindo as colunas de train e test com bind_rows
-
-full <- bind_rows(traintaxinyc, testtaxinyc)
-
-#verificando a estrutura de full
-
-str(full)
-
-#utilizando a função sapply para verificar os casos de na e o length das colunas
-
-sapply(traintaxinyc, function(x) sum(is.na(x)))
-
-sapply(traintaxinyc, function(x) length(unique(x)))
-
-
+distance_vector <- c(d1,d2,d3)
+#Checking which distance is the smallest one
+min(distance_vector)
+#For the new user, system should recommend user1 (U1)
