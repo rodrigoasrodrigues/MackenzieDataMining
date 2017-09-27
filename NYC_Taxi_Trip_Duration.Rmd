@@ -4,3 +4,49 @@ author: "Bruno Matrone, Rodrigo Rodrigues"
 date: "27 de setembro de 2017"
 output: word_document
 ---
+
+# Introdução 
+
+# Instalação de bibliotecas
+
+Para execução desse projeto são necessárias algumas bibliotecas, para facilitar a importação e instalação (quando necessário) utilizamos a seguinte função:
+
+```{r installfunction, cache=TRUE}
+installLibs <- function(x){
+  for( i in x ){
+    if( ! require( i , character.only = TRUE ) ){
+      install.packages( i , dependencies = TRUE )
+      require( i , character.only = TRUE )
+    }
+  }
+}
+```
+
+Para execução utilizamos as seguintes bibliotecas:
+
+```{r installlibs, cache=TRUE, results=FALSE}
+  installLibs(c('readr','dplyr','Amelia','pscl'))
+```
+
+# Preparação dos dados
+
+## Importação dos arquivos
+
+Primeiramente descompactamos os arquivos baixados do Kaggle para a pasta datasets:
+
+```{r unzip, cache=TRUE}
+unzip(zipfile = 'datasets/test.zip',exdir = 'datasets')
+unzip(zipfile = 'datasets/train.zip',exdir = 'datasets')
+```
+
+## Transformações
+
+### Horários
+
+### Distância
+
+# Desenvolvimento de modelos
+
+# Previsões
+
+# Conclusão
