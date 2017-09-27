@@ -1,0 +1,6 @@
+---
+title: "Predição de duração de viegens de Taxi em Nova York"
+author: "Bruno Matrone, Rodrigo Rodrigues"
+date: "27 de setembro de 2017"
+output: word_document
+---
