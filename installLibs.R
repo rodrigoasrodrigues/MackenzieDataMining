@@ -1,6 +1,5 @@
 #importando as bibliotecas
 
-
 installLibs <- function(x){
   for( i in x ){
     #  require returns TRUE invisibly if it was able to load package
@@ -14,4 +13,4 @@ installLibs <- function(x){
 }
 
 
-installLibs(c('readr','dplyr','Amelia','pscl'))
+installLibs(c('readr','dplyr','Amelia','pscl','lubridate'))

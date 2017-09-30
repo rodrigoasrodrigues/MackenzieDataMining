@@ -1,6 +1,4 @@
 
-library(dplyr)
-
 # Converte graus para rads para usar as funções matemáticas
 # (Cordenadas são em graus)
 grausParaRadianos <- function(graus){
@@ -53,7 +51,12 @@ rotacionaCoordenadas <- function(coords){
 
 #calcula a distancia utilizando a distancida de manhattan com cordenadas rotacionas em 29º
 distancia <- function(lat1, long1, lat2, long2){
-  a <- c(lat1,long1,lat2,long2)
-  d <- rotacionaCoordenadas(a) %>% distanciaManhatan
+  d <- rep(0,length(lat1))
+  for(i in 1:length(lat1)){
+    
+    a <- c(lat1[i],long1[i],lat2[i],long2[i])
+    
+    d[i] <- rotacionaCoordenadas(a) %>% distanciaManhatan
+  }
   d
 }
