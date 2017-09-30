@@ -10,7 +10,7 @@ train.original <- read_csv("datasets/train.csv")
 
 #analisa horários de pico
 rush <- hour(train.original$pickup_datetime)
-rush.hist <- hist(pickingHours,  breaks = 23, plot = FALSE)
+rush.hist <- hist(rush,  breaks = 23, plot = FALSE)
 rush.mean <- mean(rush.hist$counts) #media
 rush.sd <- sd(rush.hist$counts) #desvio padrão
 hcol <- rep('orange',24) #padrão laranja (transito moderado)
