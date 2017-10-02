@@ -15,6 +15,7 @@ train_classes <- c("factor", "factor", "character", "character", "integer",
 test_classes <- c("factor", "factor", "character", "integer",
                   "numeric", "numeric", "numeric", "numeric", "factor")
 
+
 #Importando as bases de dados train e test com fread, passando as colunas das classes
 
 traintaxinyc <- fread("datasets/train.csv", colClasses = train_classes)
@@ -65,7 +66,7 @@ set.seed(412)
 
 #Pegando uma amostra de train pra demonstrar o pickup_time pela trip_duration
 
-sample <- train %>% mutate(pickup_hour = hour(ymd_hms(pickup_datetime))) %>% sample_n(10000)
+sample <- traintaxinyc %>% mutate(pickup_hour = hour(ymd_hms(pickup_datetime))) %>% sample_n(10000)
 
 #desenhando o grafico com o ggplot 
 
@@ -78,11 +79,11 @@ rf_trip_duration <- randomForest(trip_duration ~ vendor_id + passenger_count + p
 
 #fazendo a predição do modelo para trip_duration
 
-rf_prediction <- predict(rf_trip_duration, test, type = "response") 
+rf_prediction <- predict(rf_trip_duration, testtaxinyc, type = "response") 
 
 #Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
 
-submission_file <- data.frame(id = test$id, trip_duration = rf_prediction)
+submission_file <- data.frame(id = testtaxinyc$id, trip_duration = rf_prediction)
 
 #Escrevendo o arquivo.csv para a submissão
 
@@ -94,11 +95,11 @@ rf_trip_duration2 <- randomForest(trip_duration ~ vendor_id + passenger_count + 
 
 #fazendo a predição do modelo para trip_duration
 
-rf_prediction2 <- predict(rf_trip_duration2, test, type = "response") 
+rf_prediction2 <- predict(rf_trip_duration2, testtaxinyc, type = "response") 
 
 #Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
 
-submission_file <- data.frame(id = test$id, trip_duration = rf_prediction2)
+submission_file <- data.frame(id = testtaxinyc$id, trip_duration = rf_prediction2)
 
 #Escrevendo o arquivo.csv para a submissão
 
