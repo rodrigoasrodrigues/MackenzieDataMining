@@ -71,7 +71,8 @@ sample <- train %>% mutate(pickup_hour = hour(ymd_hms(pickup_datetime))) %>% sam
 
 ggplot(sample, aes(x = pickup_hour, y = log(trip_duration))) + geom_point(position = "jitter", alpha = 0.25) + geom_smooth() +labs(x = "Hour of Pickup", y = "Log of Trip Duration", title = "Trip Duration by Pickup Hour")
 
-#Criando um modelo com randomForest com ntree = 100 para fazer a predição da trip_duration
+
+#Criando um modelo com randomForest com ntree = 100 para fazer a predição da trip_duration com vendor_id + passenger_count + pickup_longitude + pickup_latitude 
 
 rf_trip_duration <- randomForest(trip_duration ~ vendor_id + passenger_count + pickup_longitude + pickup_latitude,data = sample,ntree = 100)
 
@@ -87,4 +88,19 @@ submission_file <- data.frame(id = test$id, trip_duration = rf_prediction)
 
 write.csv(submission_file, "randomForest_submission.csv", row.names=F)
 
+#Criando um modelo com randomForest com ntree = 100 para fazer a predição da trip_duration com vendor_id + passenger_count + dropoff_latitude + dropoff_longitude
+
+rf_trip_duration2 <- randomForest(trip_duration ~ vendor_id + passenger_count + dropoff_longitude + dropoff_latitude,data = sample,ntree = 100)
+
+#fazendo a predição do modelo para trip_duration
+
+rf_prediction2 <- predict(rf_trip_duration2, test, type = "response") 
+
+#Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
+
+submission_file <- data.frame(id = test$id, trip_duration = rf_prediction2)
+
+#Escrevendo o arquivo.csv para a submissão
+
+write.csv(submission_file, "randomForest2_submission.csv", row.names=F)
 
