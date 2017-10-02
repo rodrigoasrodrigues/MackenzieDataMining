@@ -15,6 +15,6 @@
 *.utf8.md
 *.knit.md
 #DataSets
-/*.csv
+*.csv
 .csv
 .httr-oauth
