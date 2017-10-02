@@ -32,6 +32,5 @@ test <- transmute(test.original, id, vendor_id, passenger_count, recording=store
                   distance = distancia(pickup_latitude,pickup_longitude,dropoff_latitude, dropoff_longitude), 
                   traffic=ifelse(is.na(pickup_datetime),rush.mean,rush.hist$counts[hour(pickup_datetime)]))
 cat('Exportando CSV\n\n')
-write.csv(train, "tidy_train.csv", row.names=F)
-
-write.csv(test, "tidy_test.csv", row.names=F)
+write.csv(train, "datasets/tidy_train.csv", row.names=F)
+write.csv(test, "datasets/tidy_test.csv", row.names=F)
