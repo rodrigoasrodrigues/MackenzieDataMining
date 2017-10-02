@@ -5,9 +5,18 @@ source('Distancia.R')
 unzip(zipfile = 'datasets/test.zip',exdir = 'datasets')
 unzip(zipfile = 'datasets/train.zip',exdir = 'datasets')
 
-test.original <- read_csv("datasets/test.csv")
 train.original <- read_csv("datasets/train.csv")
+test.original <- read_csv("datasets/test.csv")
 
+#para ser mais rápido, se o arquivo csv processado existir importa ele
+if(file.exists('datasets/tidy_train.csv') && file.exists('datasets/tidy_test.csv'))
+{
+  
+  train <- read_csv("datasets/tidy_train.csv")
+  test <- read_csv("datasets/tidy_test.csv")
+} else
+{
+  
 #analisa horários de pico
 rush <- hour(train.original$pickup_datetime)
 rush.hist <- hist(rush,  breaks = 23, plot = FALSE)
@@ -34,3 +43,6 @@ test <- transmute(test.original, id, vendor_id, passenger_count, recording=store
 cat('Exportando CSV\n\n')
 write.csv(train, "datasets/tidy_train.csv", row.names=F)
 write.csv(test, "datasets/tidy_test.csv", row.names=F)
+
+
+}
