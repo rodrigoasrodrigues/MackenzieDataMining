@@ -1,10 +1,5 @@
 #Importando as bibliotecas
 
-library(readr)
-library(data.table)
-library(lubridate)
-library(tidyverse)
-library(randomForest)
 
 source('PreparacaoDeDados.R')
 

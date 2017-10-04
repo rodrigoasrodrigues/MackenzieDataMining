@@ -13,4 +13,5 @@ installLibs <- function(x){
 }
 
 
-installLibs(c('readr','dplyr','Amelia','pscl','lubridate'))
+installLibs(c('readr','dplyr','lubridate','data.table','tidyverse','randomForest'))
+
