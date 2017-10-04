@@ -13,5 +13,5 @@ installLibs <- function(x){
 }
 
 
-installLibs(c('readr','dplyr','lubridate','data.table','tidyverse','randomForest'))
+installLibs(c('readr','dplyr','ggplot2','lubridate','data.table','tidyverse','randomForest'))
 
