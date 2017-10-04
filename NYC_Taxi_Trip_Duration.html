@@ -140,6 +140,75 @@ $(document).ready(function () {
 }</code></pre>
 <p>Para execução utilizamos as seguintes bibliotecas:</p>
 <pre class="r"><code>installLibs(c('readr','dplyr','lubridate','ggplot2','data.table','tidyverse','randomForest'))</code></pre>
+<pre><code>## Loading required package: readr</code></pre>
+<pre><code>## Loading required package: dplyr</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre><code>## Loading required package: lubridate</code></pre>
+<pre><code>## 
+## Attaching package: 'lubridate'</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     date</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre><code>## Loading required package: data.table</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## data.table + dplyr code now lives in dtplyr.
+## Please library(dtplyr)!</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## 
+## Attaching package: 'data.table'</code></pre>
+<pre><code>## The following objects are masked from 'package:lubridate':
+## 
+##     hour, isoweek, mday, minute, month, quarter, second, wday,
+##     week, yday, year</code></pre>
+<pre><code>## The following objects are masked from 'package:dplyr':
+## 
+##     between, first, last</code></pre>
+<pre><code>## Loading required package: tidyverse</code></pre>
+<pre><code>## Loading tidyverse: tibble
+## Loading tidyverse: tidyr
+## Loading tidyverse: purrr</code></pre>
+<pre><code>## Conflicts with tidy packages ----------------------------------------------</code></pre>
+<pre><code>## as.difftime(): lubridate, base
+## between():     dplyr, data.table
+## date():        lubridate, base
+## filter():      dplyr, stats
+## first():       dplyr, data.table
+## hour():        lubridate, data.table
+## intersect():   lubridate, base
+## isoweek():     lubridate, data.table
+## lag():         dplyr, stats
+## last():        dplyr, data.table
+## mday():        lubridate, data.table
+## minute():      lubridate, data.table
+## month():       lubridate, data.table
+## quarter():     lubridate, data.table
+## second():      lubridate, data.table
+## setdiff():     lubridate, base
+## transpose():   purrr, data.table
+## union():       lubridate, base
+## wday():        lubridate, data.table
+## week():        lubridate, data.table
+## yday():        lubridate, data.table
+## year():        lubridate, data.table</code></pre>
+<pre><code>## Loading required package: randomForest</code></pre>
+<pre><code>## randomForest 4.6-12</code></pre>
+<pre><code>## Type rfNews() to see new features/changes/bug fixes.</code></pre>
+<pre><code>## 
+## Attaching package: 'randomForest'</code></pre>
+<pre><code>## The following object is masked from 'package:ggplot2':
+## 
+##     margin</code></pre>
+<pre><code>## The following object is masked from 'package:dplyr':
+## 
+##     combine</code></pre>
 </div>
 <div id="preparacao-dos-dados" class="section level1">
 <h1>Preparação dos dados</h1>
@@ -328,14 +397,64 @@ hist(train$distance)</code></pre>
 </div>
 <div id="desenvolvimento-de-modelos" class="section level1">
 <h1>Desenvolvimento de modelos</h1>
+<p>Para a resolução do problema utilizamos 3 modelos diferentes apresentados aqui por ordem de efetividade.</p>
 <div id="kmeans" class="section level2">
 <h2>KMeans</h2>
+<pre class="r"><code>#para reproducibilidade
+set.seed(20)
+
+#cria o cluster
+NYCTripCluster &lt;- kmeans(train[, 2:6], 2, nstart = 20)
+
+#Criando a tabela para visualizar o resultado do Cluster com Kmeans
+
+base::table(NYCTripCluster$cluster,train$recording)</code></pre>
+<pre><code>##    
+##       FALSE    TRUE
+##   1 1197526    5840
+##   2  104606     487</code></pre>
+<pre class="r"><code>#Preparando os dados para montar os modelos e calcular a distancia manhattan</code></pre>
 </div>
 <div id="random-forest" class="section level2">
 <h2>Random Forest</h2>
+<p>Obtivemos um bom resultado com Ntree = 100:</p>
+<pre class="r"><code>#Criando um modelo com randomForest com ntree = 100 
+#rf_trip_duration &lt;- randomForest(trip_duration ~ vendor_id + passenger_count + recording + distance + traffic ,data = train,ntree = 100)
+
+#fazendo a predição do modelo para trip_duration
+#rf_prediction &lt;- predict(rf_trip_duration, test, type = &quot;response&quot;) 
+
+#Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
+#submission_file &lt;- data.frame(id = test$id, trip_duration = rf_prediction)
+
+#Escrevendo o arquivo.csv para a submissão
+#write.csv(submission_file, &quot;randomForest_tidy.csv&quot;, row.names=F)</code></pre>
+<p>após enviar o arquivo para testes no Kaggle obtivemos um erro quadrado médio de 0.67000 <img src="data:image/png;base64,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" alt="Resultado no Kaggle.com" /></p>
 </div>
 <div id="rede-neural" class="section level2">
 <h2>Rede Neural</h2>
+<p>Utilizando uma rede neural obtivemos o melhor resultado entre os modelos, mas devido ao volume de dados não incluimos nesse arquivo o treinamento da rede completa, a execução desse código pode levar várias horas por isso realizamos com aproximadamente 1% dos dados:</p>
+<pre class="r"><code>#set.seed(500)
+#head(train)
+#t&lt;-train[,c(3,5,7)]
+
+#cor(t)
+#t &lt;- t[sample(1:nrow(t),13000),]
+
+#model &lt;- train(trip_duration ~  passenger_count + distance , t, method='nnet', linout=TRUE, trace = FALSE)
+#ps &lt;- predict(model, test)
+#ps
+#plot(ps)
+
+#Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
+
+#submission_file &lt;- data.frame(id = test$id, trip_duration = ps)
+
+#Escrevendo o arquivo.csv para a submissão
+
+#write.csv(submission_file, &quot;randomNeuralNetsCaretSample.csv&quot;, row.names=F)</code></pre>
+<p>Com esse volume de dados obtivemos a acurácia de X</p>
+<p>Utilizando 10 % dos dados obtivemos a acurácia de Y</p>
 </div>
 </div>
 <div id="conclusao" class="section level1">

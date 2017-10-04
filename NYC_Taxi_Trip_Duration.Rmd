@@ -15,7 +15,7 @@ Para isso é fornecido um arquivo de treino com 1.458.644 observações e um de tes
 
 Para execução desse projeto são necessárias algumas bibliotecas, para facilitar a importação e instalação (quando necessário) utilizamos a seguinte função:
 
-```{r installfunction, cache=TRUE}
+```{r installfunction, cache=FALSE}
 installLibs <- function(x){
   for( i in x ){
     if( ! require( i , character.only = TRUE ) ){
@@ -28,7 +28,7 @@ installLibs <- function(x){
 
 Para execução utilizamos as seguintes bibliotecas:
 
-```{r installlibs, cache=TRUE, results=FALSE, warning=FALSE}
+```{r installlibs, cache=FALSE, results=FALSE, warning=FALSE}
 installLibs(c('readr','dplyr','lubridate','ggplot2','data.table','tidyverse','randomForest'))
 ```
 
@@ -226,10 +226,75 @@ hist(train$distance)
 
 # Desenvolvimento de modelos
 
+Para a resolução do problema utilizamos 3 modelos diferentes apresentados aqui por ordem de efetividade.
+
 ## KMeans
+
+```{r kmeans, cache=TRUE}
+#para reproducibilidade
+set.seed(20)
+
+#cria o cluster
+NYCTripCluster <- kmeans(train[, 2:6], 2, nstart = 20)
+
+#Criando a tabela para visualizar o resultado do Cluster com Kmeans
+
+base::table(NYCTripCluster$cluster,train$recording)
+
+#Preparando os dados para montar os modelos e calcular a distancia manhattan
+```
 
 ## Random Forest
 
+Obtivemos um bom resultado com Ntree = 100:
+
+
+```{r randomForest}
+#Criando um modelo com randomForest com ntree = 100 
+#rf_trip_duration <- randomForest(trip_duration ~ vendor_id + passenger_count + recording + distance + traffic ,data = train,ntree = 100)
+
+#fazendo a predição do modelo para trip_duration
+#rf_prediction <- predict(rf_trip_duration, test, type = "response") 
+
+#Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
+#submission_file <- data.frame(id = test$id, trip_duration = rf_prediction)
+
+#Escrevendo o arquivo.csv para a submissão
+#write.csv(submission_file, "randomForest_tidy.csv", row.names=F)
+```
+
+após enviar o arquivo para testes no Kaggle obtivemos um erro quadrado médio de 0.67000
+![Resultado no Kaggle.com](prints/randomforest.png)
+
 ## Rede Neural
+
+Utilizando uma rede neural obtivemos o melhor resultado entre os modelos, mas devido ao volume de dados não incluimos nesse arquivo o treinamento da rede completa, a execução desse código pode levar várias horas por isso realizamos com aproximadamente 1% dos dados:
+
+```{r neuralnet, cache=TRUE}
+
+#set.seed(500)
+#head(train)
+#t<-train[,c(3,5,7)]
+
+#cor(t)
+#t <- t[sample(1:nrow(t),13000),]
+
+#model <- train(trip_duration ~  passenger_count + distance , t, method='nnet', linout=TRUE, trace = FALSE)
+#ps <- predict(model, test)
+#ps
+#plot(ps)
+
+#Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
+
+#submission_file <- data.frame(id = test$id, trip_duration = ps)
+
+#Escrevendo o arquivo.csv para a submissão
+
+#write.csv(submission_file, "randomNeuralNetsCaretSample.csv", row.names=F)
+```
+
+Com esse volume de dados obtivemos a acurácia de X
+
+Utilizando 10 % dos dados obtivemos a acurácia de Y
 
 # Conclusão
