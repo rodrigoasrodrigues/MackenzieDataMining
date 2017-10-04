@@ -14,7 +14,7 @@ t <- t[sample(1:nrow(t),130000),]
 model <- train(trip_duration ~  passenger_count + distance , t, method='nnet', linout=TRUE, trace = FALSE)
 ps <- predict(model, test)
 ps
-plot(strain$trip_duration,ps)
+plot(ps)
 
 
 
