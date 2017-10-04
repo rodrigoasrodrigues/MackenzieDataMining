@@ -2,7 +2,7 @@
 title: "Predição de duração de viagens de Taxi em Nova York"
 author: "Bruno Matrone, Rodrigo Rodrigues"
 date: "27 de setembro de 2017"
-output: html_document
+output: ioslides_presentation
 ---
 
 # Introdução 
@@ -10,6 +10,7 @@ output: html_document
 Esse projeto baseia-se na competição [New York City Taxi Trip Duration](https://www.kaggle.com/c/nyc-taxi-trip-duration) do [Kaggle](https://www.kaggle.com).
 O objetivo é obter um modelo preditivo para o tempo de viagem em um taxi na cidade de Manhattan, a partir do local de embarque e o destino, a hora de embarque e detalhes não reconhecíveis do veículo e passageiros (empresa de taxi, se a viagem está sendo gravada para análise, numero de passageiros).
 Para isso é fornecido um arquivo de treino com 1.458.644 observações e um de teste com 625.134 observações, não são fornecidos os resultados do arquivo de teste mas é disponibilizada uma ferramenta para calculo do erro médio quadrado das predições e essa foi a métrica utilizada para comparação dos modelos (Quanto menor melhor).
+Optamos por utilizar apenas os dados fornecidos pelo Kaggle para análise, não incluimos em nosso estudo fontes de dados adicionais fornecidas nos foruns de discussão.
 
 # Instalação de bibliotecas
 
@@ -28,8 +29,8 @@ installLibs <- function(x){
 
 Para execução utilizamos as seguintes bibliotecas:
 
-```{r installlibs, cache=FALSE, results=FALSE, warning=FALSE}
-installLibs(c('readr','dplyr','lubridate','ggplot2','data.table','tidyverse','randomForest'))
+```{r installlibs, cache=FALSE, results=FALSE, warning=FALSE, message=FALSE}
+installLibs(c('readr','dplyr','lubridate','ggplot2','data.table','tidyverse','randomForest','caret'))
 ```
 
 # Preparação dos dados
@@ -98,6 +99,10 @@ distanciaEuclidiana <- function(coords){
 
 Como estamos trabalhando especificamente com a cidade de Manhattan é mais preciso utilizar a distância de Manhattan do que a euclidiana,o único fator de dificuldade para essa operação é que a cidade de manhattan tem uma rotação de 29º em relação ao norte geográfico e por isso precisamos aplicar uma matriz de transformação nas coordenadas do mapa, no caso rotacionamos o destido em relação à origem da viagem:
 
+![Imagem do Google Maps](prints/manhattan.png)
+
+![Imagem do Google Maps](prints/manhattan29.png)
+
 $$
 \left(\begin{array}{cc} 
 x'\\
@@ -163,7 +168,7 @@ distancia <- function(lat1, long1, lat2, long2){
 
 Como não temos uma fonte de dados que indique o trânsito, estimamos um fator de transito de acordo com o horário pela distribuição dos embarques:
 
-```{r plotDistHour, warning=FALSE, message=FALSE}
+```{r plotDistHour, warning=FALSE, message=FALSE, cache=TRUE}
 #plot feito com um sample por questão de melhor visualização e tempo de processamento
 sample <- train.original %>% mutate(pickup_hour = hour(ymd_hms(pickup_datetime))) %>% sample_n(10000)
 ggplot(sample, aes(x = pickup_hour, y = log(trip_duration))) + geom_point(position = "jitter", alpha = 0.25) + geom_smooth() +labs(x = "Hour of Pickup", y = "Log of Trip Duration", title = "Trip Duration by Pickup Hour")
@@ -226,22 +231,23 @@ hist(train$distance)
 
 # Desenvolvimento de modelos
 
-Para a resolução do problema utilizamos 3 modelos diferentes apresentados aqui por ordem de efetividade.
+Para a resolução do problema utilizamos 2 modelos diferentes apresentados aqui por ordem de efetividade.
 
 ## KMeans
+
+Antes de aplicar os modelos, utilizamos o Kmeans como ferramenta de análise exploratória, para entender melhor a distribuição dos dados.
 
 ```{r kmeans, cache=TRUE}
 #para reproducibilidade
 set.seed(20)
 
 #cria o cluster
-NYCTripCluster <- kmeans(train[, 2:6], 2, nstart = 20)
+NYCTripCluster <- kmeans(train.original[, c(2,5)], 2, nstart = 20)
 
 #Criando a tabela para visualizar o resultado do Cluster com Kmeans
 
-base::table(NYCTripCluster$cluster,train$recording)
+base::table(NYCTripCluster$cluster,train.original$store_and_fwd_flag)
 
-#Preparando os dados para montar os modelos e calcular a distancia manhattan
 ```
 
 ## Random Forest
@@ -249,18 +255,18 @@ base::table(NYCTripCluster$cluster,train$recording)
 Obtivemos um bom resultado com Ntree = 100:
 
 
-```{r randomForest}
+```{r randomForest, cache=TRUE}
 #Criando um modelo com randomForest com ntree = 100 
-#rf_trip_duration <- randomForest(trip_duration ~ vendor_id + passenger_count + recording + distance + traffic ,data = train,ntree = 100)
+rf_trip_duration <- randomForest(trip_duration ~ vendor_id + passenger_count + recording + distance + traffic ,data = train,ntree = 100)
 
 #fazendo a predição do modelo para trip_duration
-#rf_prediction <- predict(rf_trip_duration, test, type = "response") 
+rf_prediction <- predict(rf_trip_duration, test, type = "response") 
 
 #Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
-#submission_file <- data.frame(id = test$id, trip_duration = rf_prediction)
+submission_file <- data.frame(id = test$id, trip_duration = rf_prediction)
 
 #Escrevendo o arquivo.csv para a submissão
-#write.csv(submission_file, "randomForest_tidy.csv", row.names=F)
+write.csv(submission_file, "randomForest_tidy.csv", row.names=F)
 ```
 
 após enviar o arquivo para testes no Kaggle obtivemos um erro quadrado médio de 0.67000
@@ -272,29 +278,37 @@ Utilizando uma rede neural obtivemos o melhor resultado entre os modelos, mas de
 
 ```{r neuralnet, cache=TRUE}
 
-#set.seed(500)
-#head(train)
-#t<-train[,c(3,5,7)]
+set.seed(500)
+t<-train[,c(3,5,7)]
+t <- t[sample(1:nrow(t),13000),]
 
-#cor(t)
-#t <- t[sample(1:nrow(t),13000),]
-
-#model <- train(trip_duration ~  passenger_count + distance , t, method='nnet', linout=TRUE, trace = FALSE)
-#ps <- predict(model, test)
-#ps
-#plot(ps)
+model <- train(trip_duration ~  passenger_count + distance , t, method='nnet', linout=TRUE, trace = FALSE)
+ps <- predict(model, test)
 
 #Preparando o arquivo de submissão em dataframe com a predição com id e trip_duration
 
-#submission_file <- data.frame(id = test$id, trip_duration = ps)
+submission_file <- data.frame(id = test$id, trip_duration = ps)
 
 #Escrevendo o arquivo.csv para a submissão
 
-#write.csv(submission_file, "randomNeuralNetsCaretSample.csv", row.names=F)
+write.csv(submission_file, "randomNeuralNetsCaretSample.csv", row.names=F)
 ```
 
-Com esse volume de dados obtivemos a acurácia de X
+Com esse volume de dados obtivemos a acurácia de 0.59
 
-Utilizando 10 % dos dados obtivemos a acurácia de Y
+![Resultado no Kaggle.com](prints/nnet13k.png)
+
+Utilizando 10 % dos dados obtivemos a acurácia de 0.55
+
+![Resultado no Kaggle.com](prints/nnet130k.png)
 
 # Conclusão
+
+Concluímos através do desenvolvimento do presente trabalho, que é possível utilizar diferentes tecnologias para desenvolver um modelo preditivo, dentre as quais, utilizamos o Kmeans para classificação da gravação da viagem, Random Forest e Neural Networks para responder o desafio proposto no Kaggle e verificar a melhor estimativa para a duraçao da viagem de taxi.
+Acreditamos que há margem para melhorias pois as bses utilizadas necessitam de limpeza adicional, visto que a que por nós foi executa gerou um resultado de erro médio quadrado que pode ser influenciado por outros tipos de parâmetros e montagem de outros modelos que levariam a uma melhor acertividade.
+
+# Crux
+
+As dificuldades enfrentadas se deram em relação ao tamanho das bases de treino e teste originais, a realização da limpeza dos dados para tentar melhorar a análise, quais bibliotecas importar e saber quais os melhores modelos para solucionar o problema proposto.
+Sabemos que não existe um modelo padrão ou bala de prata, sendo a análise preditiva e a mineração de dados uma questão de arte, tecnologia e estratégia.
+
