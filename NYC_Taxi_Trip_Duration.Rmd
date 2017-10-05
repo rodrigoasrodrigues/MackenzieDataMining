@@ -2,7 +2,7 @@
 title: "Predição de duração de viagens de Taxi em Nova York"
 author: "Bruno Matrone, Rodrigo Rodrigues"
 date: "27 de setembro de 2017"
-output: slidy_presentation
+output: html_document
 ---
 
 # Introdução 
